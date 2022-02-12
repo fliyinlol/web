@@ -1,0 +1,146 @@
+<script type="text/javascript">
+                      var nftNum = 1;
+
+                      document.getElementById("mint_amount_1").onclick = () => {
+                        nftNum = parseInt(
+                          document.getElementById("getSelectorById").value
+                        );
+
+                        mintToken();
+
+                        console.log("Minting... " + nftNum);
+                      };
+
+                      //fixed stuff
+
+                      var signer;
+
+                      var provider;
+
+                      // 1. Connect metamask to our site. Get the user's address
+
+                      var account = null;
+
+                      var contract = null;
+
+                      const cost = "100000000000000000";
+
+                      const contractAddress =
+                        "0x8a696CA798E65Aa54b6dAfCc811071Dde808C193";
+
+                      (async () => {
+                        if (window.ethereum) {
+                          await window.ethereum.send("eth_requestAccounts");
+
+                          window.web3 = new Web3(window.ethereum);
+
+                          var accounts = await web3.eth.getAccounts();
+
+                          account = accounts[0];
+
+                          contract = new web3.eth.Contract(
+                            ABI,
+                            contractAddress
+                          );
+
+                          web3.eth.net
+                            .getId()
+                            .then("chain id : " + console.log);
+
+                          await ethereum.request({
+                            method: "wallet_switchEthereumChain",
+
+                            params: [{ chainId: "0x1" }],
+                          });
+
+                          web3.eth.net
+                            .getId()
+                            .then("chain id : " + console.log);
+                        }
+                      })();
+
+                      async function connect() {
+                        if (!window.ethereum) {
+                          window.location.assign(
+                            "https://metamask.io/download/"
+                          );
+
+                          return;
+                        }
+
+                        await window.ethereum.send("eth_requestAccounts");
+
+                        window.web3 = new Web3(window.ethereum);
+
+                        var accounts = await web3.eth.getAccounts();
+
+                        account = accounts[0];
+
+                        contract = new web3.eth.Contract(ABI, contractAddress);
+
+                        web3.eth.net.getId().then("chain id : " + console.log);
+
+                        await ethereum.request({
+                          method: "wallet_switchEthereumChain",
+                          params: [{ chainId: "0x1" }],
+                        });
+
+                        web3.eth.net.getId().then("chain id : " + console.log);
+                      }
+
+                      async function mintToken() {
+                        try {
+                          connect();
+                        } catch {}
+
+                        contract = new web3.eth.Contract(ABI, contractAddress);
+
+                        Newcost = parseInt(cost) * nftNum;
+
+                        contract.methods
+                          .mint(nftNum)
+                          .send({ from: account, value: Newcost })
+                          .then((res) => {
+                            alert(
+                              "Token being minted! After receiving confirmation from your wallet, you can see it at Opensea or on your wallet"
+                            );
+                          })
+                          .catch(function (e) {
+                            if (
+                              JSON.stringify(e).indexOf("must be active") > -1
+                            ) {
+                              alert("Sorry, sale is not active right now.");
+                            } else if (
+                              JSON.stringify(e).indexOf("insufficient funds") >
+                              -1
+                            ) {
+                              alert(
+                                "Sorry, seems your wallet doesn't have enough funds to make this purchase!"
+                              );
+                            } else if (
+                              JSON.stringify(e).indexOf("per wallet") > -1
+                            ) {
+                              alert(
+                                "Sorry, purchase would exceed limit per wallet!"
+                              );
+                            } else if (
+                              JSON.stringify(e).indexOf(
+                                "would exceed max supply"
+                              ) > -1
+                            ) {
+                              alert("Sorry, sold out!");
+                            } else if (
+                              JSON.stringify(e).indexOf(
+                                "Address not whitelisted"
+                              ) > -1
+                            ) {
+                              alert("Sorry, address not whitelisted!");
+                            } else {
+                              alert(
+                                "Sorry, we had an error with your transaction. " +
+                                  e.message
+                              );
+                            }
+                          });
+                      }
+                    </script>
